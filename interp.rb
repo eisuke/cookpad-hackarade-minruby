@@ -121,6 +121,12 @@ def evaluate(exp, env)
       # ... Problem 4
       when 'Integer'
         Integer(evaluate(exp[2], env))
+      when 'fizzbuzz'
+        v = evaluate(exp[2], env)
+        s = ''
+        s << 'Fizz' if v % 3 == 0
+        s << 'Buzz' if v % 5 == 0
+        s
       else
         p exp
         p env
