@@ -29,6 +29,18 @@ def evaluate(exp, env)
   when "/"
     evaluate(exp[1], env) / evaluate(exp[2], env)
 
+  when ">"
+    evaluate(exp[1], env) > evaluate(exp[2], env)
+
+  when "<"
+    evaluate(exp[1], env) > evaluate(exp[2], env)
+
+  when ">="
+    evaluate(exp[1], env) > evaluate(exp[2], env)
+
+  when "<="
+    evaluate(exp[1], env) > evaluate(exp[2], env)
+
 
 #
 ## Problem 2: Statements and variables
@@ -74,8 +86,12 @@ def evaluate(exp, env)
     #   else
     #     ???
     #   end
-    raise(NotImplementedError) # Problem 3
 
+    if evaluate(exp[1], env)
+      evaluate(exp[2], env)
+    else
+      evaluate(exp[3], env)
+    end
   when "while"
     # Loop.
     raise(NotImplementedError) # Problem 3
