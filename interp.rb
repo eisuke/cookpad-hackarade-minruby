@@ -186,11 +186,16 @@ def evaluate(exp, env)
   when "ary_ref"
     evaluate(exp[1], env)[evaluate(exp[2], env)]
   when "ary_assign"
-    raise(NotImplementedError) # Problem 6
-
+    target = evaluate(exp[1], env)
+    element = evaluate(exp[2], env)
+    val = evaluate(exp[3], env)
+    target[element] = val
   when "hash_new"
-    raise(NotImplementedError) # Problem 6
-
+    hash = {}
+    (0 .. ((exp.size - 2) / 2)).each do |i|
+      hash[evaluate(exp[i*2+1], env)] = evaluate(exp[i*2+2], env)
+    end
+    hash
   else
     p("error")
     pp(exp)
