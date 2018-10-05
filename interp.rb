@@ -4,7 +4,6 @@ require "minruby"
 def evaluate(exp, env)
   # exp: A current node of AST
   # env: An environment (explained later)
-
   case exp[0]
 
 #
@@ -31,7 +30,6 @@ def evaluate(exp, env)
     evaluate(exp[1], env) / evaluate(exp[2], env)
 
 
-  
 #
 ## Problem 2: Statements and variables
 #
@@ -41,7 +39,10 @@ def evaluate(exp, env)
     #
     # Advice 1: Insert `pp(exp)` and observe the AST first.
     # Advice 2: Apply `evaluate` to each child of this node.
-    raise(NotImplementedError) # Problem 2
+
+    exp[1..exp.size - 1].each do |e|
+      evaluate(e, env)
+    end
 
   # The second argument of this method, `env`, is an "environement" that
   # keeps track of the values stored to variables.
@@ -52,6 +53,7 @@ def evaluate(exp, env)
     # Variable reference: lookup the value corresponded to the variable
     #
     # Advice: env[???]
+
     raise(NotImplementedError) # Problem 2
 
   when "var_assign"
