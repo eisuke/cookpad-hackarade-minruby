@@ -12,7 +12,6 @@ def evaluate(exp, env)
 
   when "lit"
     exp[1] # return the immediate value as is
-
   when "+"
     evaluate(exp[1], env) + evaluate(exp[2], env)
   when "-"
@@ -56,8 +55,10 @@ def evaluate(exp, env)
     # Advice 1: Insert `pp(exp)` and observe the AST first.
     # Advice 2: Apply `evaluate` to each child of this node.
 
-    exp[1..exp.size - 1].each do |e|
-      evaluate(e, env)
+    i = 1
+    while exp[i]
+      evaluate(exp[i], env)
+      i = i + 1
     end
 
   # The second argument of this method, `env`, is an "environement" that
@@ -108,9 +109,9 @@ def evaluate(exp, env)
 
   when "func_call"
     # Lookup the function definition by the given function name.
-    func = $function_definitions[exp[1]]
+    func = env['$$func'][exp[1]]
 
-    if func.nil?
+    if func == nil
       # We couldn't find a user-defined function definition;
       # it should be a builtin function.
       # Dispatch upon the given function name, and do paticular tasks.
@@ -118,18 +119,23 @@ def evaluate(exp, env)
       when "p"
         # MinRuby's `p` method is implemented by Ruby's `p` method.
         p(evaluate(exp[2], env))
-      # ... Problem 4
       when 'Integer'
         Integer(evaluate(exp[2], env))
       when 'fizzbuzz'
         v = evaluate(exp[2], env)
-        s = ''
-        s << 'Fizz' if v % 3 == 0
-        s << 'Buzz' if v % 5 == 0
+        s = nil
+        s = s + 'Fizz' if v % 3 == 0
+        s = s + 'Buzz' if v % 5 == 0
         s
+      when 'require'
+        # require(evaluate(exp[2], env))
+      when 'minruby_load'
+        minruby_load()
+      when 'minruby_parse'
+        minruby_parse(evaluate(exp[2], env))
+      when 'pp'
+        pp(evaluate(exp[2], env))
       else
-        p exp
-        p env
         raise("unknown builtin function")
       end
     else
@@ -158,8 +164,10 @@ def evaluate(exp, env)
       # `def foo(a, b, c)`.
 
       lexical = {}
-      (0 .. func[0].size - 1).each do |i|
+      i = 0
+      while func[0][i]
         lexical[func[0][i]] = evaluate(exp[i+2], env)
+        i = i + 1
       end
 
       evaluate(func[1], env.merge(lexical))
@@ -174,7 +182,7 @@ def evaluate(exp, env)
     # All you need is store them into $function_definitions.
     #
     # Advice: $function_definitions[???] = ???
-    $function_definitions[exp[1]] = [exp[2], exp[3]]
+    env['$$func'][exp[1]] = [exp[2], exp[3]]
 
 #
 ## Problem 6: Arrays and Hashes
@@ -182,30 +190,41 @@ def evaluate(exp, env)
 
   # You don't need advices anymore, do you?
   when "ary_new"
-    exp[1..-1].map { |e| evaluate(e, env) }
+    ar = []
+    i = 1
+    while exp[i]
+      ar << evaluate(exp[i], env)
+      i = i + 1
+    end
+
+    ar
   when "ary_ref"
-    evaluate(exp[1], env)[evaluate(exp[2], env)]
+    ary = evaluate(exp[1], env)
+    i = evaluate(exp[2], env)
+    ary[i]
   when "ary_assign"
     target = evaluate(exp[1], env)
     element = evaluate(exp[2], env)
-    val = evaluate(exp[3], env)
-    target[element] = val
+    target[element] = evaluate(exp[3], env)
   when "hash_new"
     hash = {}
-    (0 .. ((exp.size - 2) / 2)).each do |i|
+    i = 0
+
+    while exp[i*2+1]
       hash[evaluate(exp[i*2+1], env)] = evaluate(exp[i*2+2], env)
+      i = i + 1
     end
+
     hash
   else
     p("error")
-    pp(exp)
+    pp exp
     raise("unknown node")
   end
 end
 
 
-$function_definitions = {}
-env = {}
+env = { '$$func' => {} }
 
 # `minruby_load()` == `File.read(ARGV.shift)`
 # `minruby_parse(str)` parses a program text given, and returns its AST
