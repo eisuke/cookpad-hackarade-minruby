@@ -53,15 +53,12 @@ def evaluate(exp, env)
     # Variable reference: lookup the value corresponded to the variable
     #
     # Advice: env[???]
-
-    raise(NotImplementedError) # Problem 2
-
+    evaluate(['lit', env[exp[1]]], env)
   when "var_assign"
     # Variable assignment: store (or overwrite) the value to the environment
     #
     # Advice: env[???] = ???
-    raise(NotImplementedError) # Problem 2
-
+    env[exp[1]] = evaluate(exp[2], env)
 
 #
 ## Problem 3: Branchs and loops
